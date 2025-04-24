@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,9 +18,14 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody PostDTO postDTO, Authentication authentication) {
-        return ResponseEntity.ok(postService.createPost(postDTO, authentication));
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<Post> createPost(
+            @RequestParam("description") String description,
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(postService.createPost(description, image, video, authentication));
     }
 
     @GetMapping
@@ -28,8 +34,8 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Post>> getUserPosts(@PathVariable Long userId) {
-        return ResponseEntity.ok(postService.getUserPosts(userId));
+    public ResponseEntity<List<Post>> getUserPosts(@PathVariable String userId) {
+        return ResponseEntity.ok(postService.getUserPostsByEmail(userId));
     }
 
     @PutMapping("/{postId}")

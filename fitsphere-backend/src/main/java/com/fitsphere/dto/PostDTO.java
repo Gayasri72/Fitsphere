@@ -7,5 +7,7 @@ public record PostDTO(
         String description,
         String mediaUrl,
         LocalDateTime createdAt,
-        Long userId
+        Long userId,
+        String imageUrl(),
+        String videoUrl()
 ) {}
