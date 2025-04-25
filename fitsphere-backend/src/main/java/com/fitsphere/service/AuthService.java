@@ -12,6 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -29,7 +31,10 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
         userRepository.save(user);
-        var token = jwtService.generateToken(user);
+        
+        // Include user ID in the token payload with explicit casting
+        var extraClaims = Map.of("id", (Object) user.getId());
+        var token = jwtService.generateToken(extraClaims, user);
         return new AuthenticationResponse(token);
     }
 
@@ -39,7 +44,10 @@ public class AuthService {
         );
         var user = userRepository.findByEmail(request.email())
                 .orElseThrow();
-        var token = jwtService.generateToken(user);
+        
+        // Include user ID in the token payload with explicit casting
+        var extraClaims = Map.of("id", (Object) user.getId());
+        var token = jwtService.generateToken(extraClaims, user);
         return new AuthenticationResponse(token);
     }
 }

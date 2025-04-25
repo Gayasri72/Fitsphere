@@ -11,13 +11,7 @@ export const PostsProvider = ({ children }) => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const res = await axios.get("/posts", config);
+      const res = await axios.get("/posts");
       console.log("Fetched posts:", res.data); // Debugging log
       setPosts(res.data);
     } catch (err) {

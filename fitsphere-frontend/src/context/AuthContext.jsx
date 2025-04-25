@@ -11,7 +11,10 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        console.log("Decoded token:", decoded); // Debugging log
+        console.log("Decoded token payload:", decoded); // Debugging log
+        if (!decoded.id) {
+          console.warn("Decoded token does not contain an ID field.");
+        }
         setUser(decoded);
       } catch (err) {
         console.error("Invalid token", err);

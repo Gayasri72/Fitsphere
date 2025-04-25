@@ -5,14 +5,13 @@ const Home = () => {
   const { posts, loading } = usePosts();
 
   return (
-    <div className="max-w-2xl mx-auto mt-8">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">🏋️ FitSphere Posts</h1>
+    <div className="max-w-2xl mx-auto mt-4 pb-16">
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <p className="text-center text-gray-500">Loading posts...</p>
       ) : posts.length === 0 ? (
-        <p className="text-center text-gray-500">No posts available</p>
+        <p className="text-center text-gray-500">No posts available.</p>
       ) : (
-        posts.map(post => <PostCard key={post.id} post={post} />)
+        posts.map((post) => <PostCard key={post.id} post={post} />)
       )}
     </div>
   );

@@ -70,10 +70,9 @@ public class PostService {
         if (!post.getUser().getEmail().equals(authentication.getName())) {
             return Optional.empty(); // only author can update
         }
-        post.setDescription(dto.description());
-        post.setMediaUrl(dto.mediaUrl());
-        post.setImageUrl(dto.imageUrl());
-        post.setVideoUrl(dto.videoUrl());
+        post.setDescription(dto.getDescription());
+        post.setImageUrl(dto.getImageUrl());
+        post.setVideoUrl(dto.getVideoUrl());
         return Optional.of(postRepository.save(post));
     }
 
