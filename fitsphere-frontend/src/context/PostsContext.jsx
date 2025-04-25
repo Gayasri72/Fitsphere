@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import axios from "../api/axios";
 
 const PostsContext = createContext();
@@ -54,4 +54,4 @@ export const PostsProvider = ({ children }) => {
   );
 };
 
-export const usePosts = () => useContext(PostsContext);
+export { PostsContext };

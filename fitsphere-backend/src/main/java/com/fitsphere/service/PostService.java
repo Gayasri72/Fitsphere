@@ -8,8 +8,11 @@ import com.fitsphere.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,16 +31,34 @@ public class PostService {
         String imageUrl = null;
         String videoUrl = null;
 
-        // Process image file
+        // Save image file if present
         if (image != null && !image.isEmpty()) {
-            imageUrl = "path/to/uploaded/images/" + image.getOriginalFilename();
-            // Save the image file to the server (implementation needed)
+            String fileName = System.currentTimeMillis() + "_" + StringUtils.cleanPath(image.getOriginalFilename());
+            File uploadDir = new File("uploads/images");
+            File dest = new File(uploadDir, fileName);
+            File parentDir = dest.getParentFile();
+            if (!parentDir.exists()) parentDir.mkdirs();
+            try {
+                image.transferTo(dest);
+                imageUrl = "/images/" + fileName;
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save image file", e);
+            }
         }
 
-        // Process video file
+        // Save video file if present
         if (video != null && !video.isEmpty()) {
-            videoUrl = "path/to/uploaded/videos/" + video.getOriginalFilename();
-            // Save the video file to the server (implementation needed)
+            String fileName = System.currentTimeMillis() + "_" + StringUtils.cleanPath(video.getOriginalFilename());
+            File uploadDir = new File("uploads/videos");
+            File dest = new File(uploadDir, fileName);
+            File parentDir = dest.getParentFile();
+            if (!parentDir.exists()) parentDir.mkdirs();
+            try {
+                video.transferTo(dest);
+                videoUrl = "/videos/" + fileName;
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save video file", e);
+            }
         }
 
         Post post = Post.builder()

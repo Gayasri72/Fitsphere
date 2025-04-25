@@ -12,12 +12,13 @@ const Register = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/auth/register", form);
+      await axios.post("/public/register", form);
       navigate("/login");
     } catch (err) {
       setError("Registration failed. Try again.");
@@ -26,8 +27,13 @@ const Register = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-white">
-      <form onSubmit={handleSubmit} className="w-full max-w-md p-8 rounded-xl shadow bg-gray-100">
-        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Register</h2>
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md p-8 rounded-xl shadow bg-gray-100"
+      >
+        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">
+          Register
+        </h2>
 
         <input
           type="text"
@@ -68,13 +74,18 @@ const Register = () => {
 
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
-        <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
+        >
           Register
         </button>
 
         <p className="mt-4 text-center text-sm">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-500 hover:underline">Login</a>
+          <a href="/login" className="text-blue-500 hover:underline">
+            Login
+          </a>
         </p>
       </form>
     </div>

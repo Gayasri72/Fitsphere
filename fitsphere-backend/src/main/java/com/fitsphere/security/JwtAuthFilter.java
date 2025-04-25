@@ -37,7 +37,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         // ✅ Skip filtering for public authentication endpoints
-        if (path.startsWith("/api/auth/")) {
+        if (path.startsWith("/api/public/") || path.startsWith("/api/auth/")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -47,7 +47,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String userEmail;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            logger.warn("Missing or invalid Authorization header");
+            logger.warn("Missing or invalid Authorization header for path: {}", path);
             filterChain.doFilter(request, response);
             return;
         }
@@ -56,7 +56,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             userEmail = jwtService.extractUsername(jwt);
         } catch (Exception e) {
-            logger.error("Failed to extract username from token: {}", e.getMessage());
+            logger.error("Failed to extract username from token: {} | Path: {} | Token: {}", e.getMessage(), path, jwt);
             filterChain.doFilter(request, response);
             return;
         }
@@ -68,9 +68,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                logger.info("Successfully authenticated user: {}", userEmail);
+                logger.info("Successfully authenticated user: {} for path: {}", userEmail, path);
             } else {
-                logger.warn("Invalid token for user: {}", userEmail);
+                logger.warn("Invalid token for user: {} | Path: {} | Token: {}", userEmail, path, jwt);
             }
         }
 
