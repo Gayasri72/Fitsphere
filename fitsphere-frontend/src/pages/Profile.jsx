@@ -53,9 +53,17 @@ const Profile = () => {
       await axios.put(`/users/${user.id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Profile updated successfully");
+      // Re-login to get a fresh token and user context
+      const loginResponse = await axios.post("/public/login", {
+        email: updatedUser.email,
+        password: prompt("Please enter your password to re-authenticate:"),
+      });
+      const token = loginResponse.data.token;
+      localStorage.setItem("token", token);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      window.location.reload(); // Reload to refresh context and UI
     } catch (error) {
-      alert("Failed to update profile");
+      alert("Failed to update profile. Please check your credentials.");
     }
   };
 
@@ -185,12 +193,14 @@ const Profile = () => {
           </div>
           <div className="flex flex-col sm:flex-row gap-2 mt-4 justify-center">
             <button
+              type="button"
               onClick={handleUpdate}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
             >
               Update
             </button>
             <button
+              type="button"
               onClick={handleDelete}
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
             >

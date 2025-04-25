@@ -26,6 +26,8 @@ public class User implements UserDetails {
     private String email;
     private String password;
 
+    private String profileImageUrl; // New field for profile image
+
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<Post> posts;

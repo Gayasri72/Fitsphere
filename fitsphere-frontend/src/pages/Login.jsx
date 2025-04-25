@@ -28,7 +28,11 @@ const Login = () => {
   };
 
   const handleOAuthLogin = (provider) => {
-    window.location.href = `http://localhost:8081/oauth2/authorize/${provider}?redirect_uri=http://localhost:5173/oauth2/callback`;
+    if (provider === "google") {
+      window.location.href = `http://localhost:8081/oauth2/authorization/google`;
+    } else {
+      window.location.href = `http://localhost:8081/oauth2/authorization/${provider}`;
+    }
   };
 
   return (

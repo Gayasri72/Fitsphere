@@ -37,7 +37,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         // ✅ Skip filtering for public authentication endpoints
-        if (path.startsWith("/api/public/") || path.startsWith("/api/auth/")) {
+        if (path.startsWith("/api/public/") || path.startsWith("/api/auth/") ||
+            path.startsWith("/oauth2/authorize/") || path.startsWith("/oauth2/callback/") ||
+            path.equals("/favicon.ico")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -47,6 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String userEmail;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // Only log a warning for protected endpoints
             logger.warn("Missing or invalid Authorization header for path: {}", path);
             filterChain.doFilter(request, response);
             return;
