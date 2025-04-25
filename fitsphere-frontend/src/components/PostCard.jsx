@@ -7,16 +7,31 @@ const PostCard = ({ post }) => {
       <div className="flex items-center p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
         <img
           src={
-            "https://ui-avatars.com/api/?name=" +
-            encodeURIComponent(
-              post.user
-                ? `${post.user.firstName} ${post.user.lastName}`
-                : "User"
-            ) +
-            "&background=4f8cff&color=fff&size=40"
+            post.user &&
+            post.user.profileImageUrl &&
+            post.user.profileImageUrl !== ""
+              ? post.user.profileImageUrl
+              : "https://ui-avatars.com/api/?name=" +
+                encodeURIComponent(
+                  post.user
+                    ? `${post.user.firstName} ${post.user.lastName}`
+                    : "User"
+                ) +
+                "&background=4f8cff&color=fff&size=40"
           }
           alt="User Avatar"
           className="w-12 h-12 rounded-full mr-4 border-2 border-blue-200 shadow-sm"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src =
+              "https://ui-avatars.com/api/?name=" +
+              encodeURIComponent(
+                post.user
+                  ? `${post.user.firstName} ${post.user.lastName}`
+                  : "User"
+              ) +
+              "&background=4f8cff&color=fff&size=40";
+          }}
         />
         <div>
           <p className="font-bold text-gray-800 text-lg">
@@ -31,7 +46,11 @@ const PostCard = ({ post }) => {
       </div>
       {post.imageUrl && (
         <img
-          src={post.imageUrl}
+          src={
+            post.imageUrl.startsWith("/images/")
+              ? `http://localhost:8081${post.imageUrl}`
+              : post.imageUrl
+          }
           alt="Post"
           className="w-full max-h-96 object-cover"
         />

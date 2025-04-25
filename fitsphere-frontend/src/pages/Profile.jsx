@@ -130,16 +130,27 @@ const Profile = () => {
             src={
               profileImage
                 ? URL.createObjectURL(profileImage)
-                : user.profileImageUrl ||
-                  "https://ui-avatars.com/api/?name=" +
-                    encodeURIComponent(
-                      `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-                        "User"
-                    ) +
-                    "&background=4f8cff&color=fff&size=128"
+                : user.profileImageUrl && user.profileImageUrl !== ""
+                ? user.profileImageUrl
+                : "https://ui-avatars.com/api/?name=" +
+                  encodeURIComponent(
+                    `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+                      "User"
+                  ) +
+                  "&background=4f8cff&color=fff&size=128"
             }
             alt="User Avatar"
             className="w-32 h-32 rounded-full border-4 border-blue-200 shadow-lg mb-2"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src =
+                "https://ui-avatars.com/api/?name=" +
+                encodeURIComponent(
+                  `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+                    "User"
+                ) +
+                "&background=4f8cff&color=fff&size=128";
+            }}
           />
           <label className="cursor-pointer bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm hover:bg-blue-200 transition">
             Change Photo

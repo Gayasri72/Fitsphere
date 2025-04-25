@@ -34,10 +34,9 @@ public class PostService {
         // Save image file if present
         if (image != null && !image.isEmpty()) {
             String fileName = System.currentTimeMillis() + "_" + StringUtils.cleanPath(image.getOriginalFilename());
-            File uploadDir = new File("uploads/images");
+            File uploadDir = new File(System.getProperty("user.dir"), "uploads/images");
+            if (!uploadDir.exists()) uploadDir.mkdirs();
             File dest = new File(uploadDir, fileName);
-            File parentDir = dest.getParentFile();
-            if (!parentDir.exists()) parentDir.mkdirs();
             try {
                 image.transferTo(dest);
                 imageUrl = "/images/" + fileName;
@@ -49,10 +48,9 @@ public class PostService {
         // Save video file if present
         if (video != null && !video.isEmpty()) {
             String fileName = System.currentTimeMillis() + "_" + StringUtils.cleanPath(video.getOriginalFilename());
-            File uploadDir = new File("uploads/videos");
+            File uploadDir = new File(System.getProperty("user.dir"), "uploads/videos");
+            if (!uploadDir.exists()) uploadDir.mkdirs();
             File dest = new File(uploadDir, fileName);
-            File parentDir = dest.getParentFile();
-            if (!parentDir.exists()) parentDir.mkdirs();
             try {
                 video.transferTo(dest);
                 videoUrl = "/videos/" + fileName;

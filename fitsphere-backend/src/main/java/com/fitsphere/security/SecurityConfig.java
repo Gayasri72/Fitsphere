@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import com.fitsphere.security.JwtAuthFilter;
@@ -27,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
@@ -51,7 +53,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/public/login", "/api/public/register").permitAll()
-                .requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
+                .requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**", "/oauth2/callback/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
                 .anyRequest().authenticated()
             )
@@ -65,7 +67,10 @@ public class SecurityConfig {
             }))
             .csrf(csrf -> csrf.disable())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling(eh -> eh.authenticationEntryPoint(customAuthenticationEntryPoint()));
+            .exceptionHandling(eh -> eh.authenticationEntryPoint(customAuthenticationEntryPoint()))
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler(customOAuth2SuccessHandler)
+            );
         return http.build();
     }
 

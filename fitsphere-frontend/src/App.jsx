@@ -5,11 +5,12 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
 import Navbar from "./components/Navbar";
+import OAuthCallback from "./pages/OAuthCallback";
 
 function App() {
   return (
     <BrowserRouter>
-      <Navbar/>
+      <Navbar />
       <div className="container mx-auto p-4">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -18,7 +19,7 @@ function App() {
           <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/create" element={<CreatePost />} />
           <Route path="/edit/:postId" element={<CreatePost />} />
-
+          <Route path="/oauth-callback" element={<OAuthCallback />} />
         </Routes>
       </div>
     </BrowserRouter>
