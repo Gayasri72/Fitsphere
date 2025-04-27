@@ -1,9 +1,41 @@
-import React, { useState } from "react";
-import { FaRegHeart, FaRegComment, FaRegShareSquare } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaRegHeart, FaHeart, FaRegComment, FaRegShareSquare } from "react-icons/fa";
 import CommentSection from "./CommentSection";
+import { useAuth } from "../context/AuthContext";
+import api from "../api/axios";
 
 const PostCard = ({ post }) => {
   const [showComments, setShowComments] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.likeCount || 0);
+  const { user } = useAuth();
+
+  // Initialize like state from post data
+  useEffect(() => {
+    if (user && post.likedBy) {
+      const userLiked = post.likedBy.includes(user.id);
+      setIsLiked(userLiked);
+      setLikeCount(post.likeCount || 0);
+    }
+  }, [user, post.likedBy, post.likeCount]);
+
+  const handleLike = async () => {
+    if (!user) {
+      alert("Please login to like posts");
+      return;
+    }
+
+    try {
+      const response = await api.put(`/posts/${post.id}/like`);
+      const updatedPost = response.data;
+      const userLiked = updatedPost.likedBy.includes(user.id);
+      setIsLiked(userLiked);
+      setLikeCount(updatedPost.likeCount);
+    } catch (error) {
+      console.error("Error updating like status:", error);
+      alert("Failed to update like status");
+    }
+  };
 
   return (
     <div className="mx-auto w-full max-w-xl bg-white shadow-lg rounded-2xl mb-8 transition-transform hover:-translate-y-1 hover:shadow-2xl border border-gray-100">
@@ -50,9 +82,18 @@ const PostCard = ({ post }) => {
           {post.description}
         </p>
         <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-          <button className="flex items-center space-x-2 text-gray-500 hover:text-pink-500 transition-colors">
-            <FaRegHeart />
-            <span>Like</span>
+          <button 
+            onClick={handleLike}
+            className={`flex items-center space-x-2 transition-colors ${
+              isLiked ? 'text-pink-500' : 'text-gray-500 hover:text-pink-500'
+            }`}
+          >
+            {isLiked ? (
+              <FaHeart className="text-pink-500" />
+            ) : (
+              <FaRegHeart />
+            )}
+            <span>{likeCount} {likeCount === 1 ? 'Like' : 'Likes'}</span>
           </button>
           <button 
             onClick={() => setShowComments(!showComments)}
