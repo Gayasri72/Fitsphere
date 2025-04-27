@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaRegHeart, FaRegComment, FaRegShareSquare } from "react-icons/fa";
+import CommentSection from "./CommentSection";
 
 const PostCard = ({ post }) => {
+  const [showComments, setShowComments] = useState(false);
+
   return (
     <div className="mx-auto w-full max-w-xl bg-white shadow-lg rounded-2xl mb-8 transition-transform hover:-translate-y-1 hover:shadow-2xl border border-gray-100">
       <div className="flex items-center p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
@@ -51,7 +54,10 @@ const PostCard = ({ post }) => {
             <FaRegHeart />
             <span>Like</span>
           </button>
-          <button className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors">
+          <button 
+            onClick={() => setShowComments(!showComments)}
+            className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors"
+          >
             <FaRegComment />
             <span>Comment</span>
           </button>
@@ -60,6 +66,11 @@ const PostCard = ({ post }) => {
             <span>Share</span>
           </button>
         </div>
+        {showComments && (
+          <div className="mt-4">
+            <CommentSection postId={post.id} />
+          </div>
+        )}
       </div>
     </div>
   );

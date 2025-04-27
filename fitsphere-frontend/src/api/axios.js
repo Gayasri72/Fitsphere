@@ -1,11 +1,14 @@
 import axios from "axios";
 
-const instance = axios.create({
+const api = axios.create({
   baseURL: "http://localhost:8081/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 // Add a request interceptor to include the Authorization header
-instance.interceptors.request.use(
+api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -18,4 +21,4 @@ instance.interceptors.request.use(
   }
 );
 
-export default instance;
+export default api;
