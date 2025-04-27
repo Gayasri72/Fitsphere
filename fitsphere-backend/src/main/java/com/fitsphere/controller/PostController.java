@@ -57,9 +57,5 @@ public class PostController {
                 .orElse(ResponseEntity.status(403).build());
     }
 
-    @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long postId, Authentication authentication) {
-        boolean deleted = postService.deletePost(postId, authentication);
-        return deleted ? ResponseEntity.ok().build() : ResponseEntity.status(403).build();
-    }
+   
 }
