@@ -32,7 +32,11 @@ const CommentSection = ({ postId }) => {
     setIsSubmitting(true);
     setError(null);
     try {
-      const response = await api.post(`/posts/${postId}/comments/`);
+      const response = await api.post(`/posts/${postId}/comments`, newComment, {
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      });
       setComments((prevComments) => {
         const newComment = response.data;
         return Array.isArray(prevComments)

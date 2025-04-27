@@ -21,6 +21,8 @@ public class CommentController {
             @PathVariable Long postId,
             @RequestBody String content,
             Authentication authentication) {
+        // Remove quotes if present
+        content = content.replaceAll("^\"|\"$", "");
         CommentDTO comment = commentService.createComment(postId, content, authentication);
         return ResponseEntity.ok(comment);
     }
