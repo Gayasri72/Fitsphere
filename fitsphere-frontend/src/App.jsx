@@ -7,7 +7,6 @@ import CreatePost from "./pages/CreatePost";
 import Navbar from "./components/Navbar";
 import OAuthCallback from "./pages/OAuthCallback";
 import Achievements from "./pages/Achievements";
-import ProgressUpdates from "./pages/ProgressUpdates";
 
 function App() {
   return (
@@ -23,7 +22,6 @@ function App() {
           <Route path="/edit/:postId" element={<CreatePost />} />
           <Route path="/oauth-callback" element={<OAuthCallback />} />
           <Route path="/achievements" element={<Achievements />} />
-          <Route path="/progress-updates" element={<ProgressUpdates />} />
         </Routes>
       </div>
     </BrowserRouter>
