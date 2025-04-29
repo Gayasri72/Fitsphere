@@ -11,7 +11,9 @@ export const AuthProvider = ({ children }) => {
     console.log("Token retrieved from localStorage:", token);
     if (token) {
       try {
-        const decoded = jwtDecode(token);
+        let decoded = jwtDecode(token);
+        // Ensure sub is set for compatibility with UI
+        if (!decoded.sub && decoded.id) decoded.sub = decoded.id;
         console.log("Decoded token payload:", decoded); // Debugging log
         if (!decoded.id) {
           console.warn("Decoded token does not contain an ID field.");
@@ -31,7 +33,9 @@ export const AuthProvider = ({ children }) => {
   const login = (token) => {
     localStorage.setItem("token", token);
     try {
-      const decoded = jwtDecode(token);
+      let decoded = jwtDecode(token);
+      // Ensure sub is set for compatibility with UI
+      if (!decoded.sub && decoded.id) decoded.sub = decoded.id;
       console.log("User logged in:", decoded); // Debugging log
       setUser(decoded);
     } catch {

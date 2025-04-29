@@ -6,6 +6,11 @@ import org.springframework.web.bind.annotation.*;
 import com.fitsphere.model.User;
 import com.fitsphere.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestParam;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -14,9 +19,22 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("")
+    public ResponseEntity<List<User>> getAllUsers(Authentication authentication) {
+        String currentEmail = authentication != null ? authentication.getName() : null;
+        List<User> users = userService.getAllUsersExcept(currentEmail);
+        return ResponseEntity.ok(users);
+    }
+
     @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable Long userId, @RequestBody User updatedUser, Authentication authentication) {
-        User user = userService.updateUser(userId, updatedUser, authentication);
+    public ResponseEntity<User> updateUser(
+            @PathVariable Long userId,
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @RequestParam("email") String email,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+            Authentication authentication) throws IOException {
+        User user = userService.updateUser(userId, firstName, lastName, email, profileImage, authentication);
         return ResponseEntity.ok(user);
     }
 

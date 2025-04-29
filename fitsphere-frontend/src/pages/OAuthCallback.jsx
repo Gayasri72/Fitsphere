@@ -1,25 +1,29 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const OAuthCallback = () => {
   const navigate = useNavigate();
+  const { login, user } = useAuth();
 
   useEffect(() => {
-    const fetchToken = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get("token");
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    if (token) {
+      localStorage.setItem("token", token);
+      login(token); // This will update user
+    } else {
+      console.error("OAuth token not found in the URL.");
+      navigate("/login");
+    }
+    // eslint-disable-next-line
+  }, []);
 
-      if (token) {
-        localStorage.setItem("token", token);
-        navigate("/"); // Redirect to home page after successful login
-      } else {
-        console.error("OAuth token not found in the URL.");
-        navigate("/login"); // Redirect to login page on failure
-      }
-    };
-
-    fetchToken();
-  }, [navigate]);
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   return <div>Processing OAuth login...</div>;
 };

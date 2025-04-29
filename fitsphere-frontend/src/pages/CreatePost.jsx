@@ -10,6 +10,10 @@ const CreatePost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!image && !video) {
+      alert("Please add an image or a video to your post.");
+      return;
+    }
     const formData = new FormData();
     formData.append("description", description);
     if (image) formData.append("image", image);
@@ -17,6 +21,7 @@ const CreatePost = () => {
 
     try {
       const token = localStorage.getItem("token");
+      console.log("Token used for post:", token);
       if (!token) {
         alert("You are not logged in. Please log in to create a post.");
         return;
@@ -34,10 +39,14 @@ const CreatePost = () => {
     } catch (err) {
       if (err.response && err.response.status === 403) {
         alert(
-          "You are not authorized to create a post. Please check your login status."
+          "You are not authorized to create a post. Please check your login status.\n" +
+            (err.response.data && err.response.data.error
+              ? err.response.data.error
+              : "")
         );
       } else {
         console.error("Failed to create post", err);
+        alert("Failed to create post: " + (err.message || "Unknown error"));
       }
     }
   };
