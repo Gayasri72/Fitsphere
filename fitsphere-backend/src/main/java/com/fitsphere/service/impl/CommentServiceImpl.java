@@ -71,7 +71,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private CommentDTO convertToDTO(Comment comment) {
-        UserDTO userDTO = UserDTO.fromUser(comment.getUser());
+        UserDTO userDTO = new UserDTO(
+            comment.getUser().getId(),
+            comment.getUser().getFirstName(),
+            comment.getUser().getLastName(),
+            comment.getUser().getEmail()
+        );
 
         return new CommentDTO(
             comment.getId(),
