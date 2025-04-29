@@ -70,13 +70,26 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.delete(comment);
     }
 
+    @Override
+    @Transactional
+    public CommentDTO updateComment(Long commentId, String content, Authentication authentication) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
+
+        User currentUser = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (!comment.getUser().getId().equals(currentUser.getId())) {
+            throw new SecurityException("Not authorized to update this comment");
+        }
+
+        comment.setContent(content);
+        Comment updatedComment = commentRepository.save(comment);
+        return convertToDTO(updatedComment);
+    }
+
     private CommentDTO convertToDTO(Comment comment) {
-        UserDTO userDTO = new UserDTO(
-            comment.getUser().getId(),
-            comment.getUser().getFirstName(),
-            comment.getUser().getLastName(),
-            comment.getUser().getEmail()
-        );
+        UserDTO userDTO = UserDTO.fromUser(comment.getUser());
 
         return new CommentDTO(
             comment.getId(),

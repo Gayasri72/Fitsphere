@@ -1,9 +1,13 @@
 package com.fitsphere.dto;
 
 import com.fitsphere.model.User;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDTO {
     private Long id;
     private String firstName;

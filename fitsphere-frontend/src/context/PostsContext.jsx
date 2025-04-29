@@ -1,11 +1,13 @@
 import { createContext, useEffect, useState } from "react";
 import axios from "../api/axios";
+import { useAuth } from "./AuthContext";
 
 const PostsContext = createContext();
 
 export const PostsProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   // Initial fetch
   const fetchPosts = async () => {
@@ -23,7 +25,7 @@ export const PostsProvider = ({ children }) => {
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [user]); // Refetch when user changes
 
   const addPost = (post) => {
     if (!post.id) {
