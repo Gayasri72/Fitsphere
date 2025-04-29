@@ -8,13 +8,11 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token retrieved from localStorage:", token);
     if (token) {
       try {
         let decoded = jwtDecode(token);
         // Ensure sub is set for compatibility with UI
         if (!decoded.sub && decoded.id) decoded.sub = decoded.id;
-        console.log("Decoded token payload:", decoded); // Debugging log
         if (!decoded.id) {
           console.warn("Decoded token does not contain an ID field.");
         }
@@ -25,7 +23,6 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     } else {
-      console.log("No token found, setting user to null"); // Debugging log
       setUser(null);
     }
   }, []);
@@ -36,16 +33,14 @@ export const AuthProvider = ({ children }) => {
       let decoded = jwtDecode(token);
       // Ensure sub is set for compatibility with UI
       if (!decoded.sub && decoded.id) decoded.sub = decoded.id;
-      console.log("User logged in:", decoded); // Debugging log
       setUser(decoded);
     } catch {
-      console.error("Failed to decode token during login"); // Debugging log
+      console.error("Failed to decode token during login");
       setUser(null);
     }
   };
 
   const logout = () => {
-    console.log("User logged out"); // Debugging log
     localStorage.removeItem("token");
     setUser(null);
   };
