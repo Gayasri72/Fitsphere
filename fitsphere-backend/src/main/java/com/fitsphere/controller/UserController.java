@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -17,6 +18,13 @@ import java.io.IOException;
 public class UserController {
 
     private final UserService userService;
+
+    @GetMapping("")
+    public ResponseEntity<List<User>> getAllUsers(Authentication authentication) {
+        String currentEmail = authentication != null ? authentication.getName() : null;
+        List<User> users = userService.getAllUsersExcept(currentEmail);
+        return ResponseEntity.ok(users);
+    }
 
     @PutMapping("/{userId}")
     public ResponseEntity<User> updateUser(

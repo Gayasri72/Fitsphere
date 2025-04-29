@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,5 +48,12 @@ public class UserService {
             throw new SecurityException("Unauthorized to delete this user");
         }
         userRepository.delete(user);
+    }
+
+    public List<User> getAllUsersExcept(String email) {
+        if (email == null) return userRepository.findAll();
+        return userRepository.findAll().stream()
+                .filter(u -> !u.getEmail().equals(email))
+                .toList();
     }
 }
