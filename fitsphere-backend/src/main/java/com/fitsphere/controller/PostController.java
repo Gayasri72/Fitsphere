@@ -62,4 +62,6 @@ public class PostController {
         boolean deleted = postService.deletePost(postId, authentication);
         return deleted ? ResponseEntity.ok().build() : ResponseEntity.status(403).build();
     }
+
+   
 }
