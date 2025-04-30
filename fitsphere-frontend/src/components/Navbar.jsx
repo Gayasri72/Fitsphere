@@ -24,6 +24,35 @@ const Navbar = () => {
             Home
           </Link>
 
+          {/* Categories Dropdown */}
+          <div className="relative group">
+            <button className="hover:underline flex items-center">
+              Categories
+              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div className="absolute left-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <div className="py-1">
+                <Link to="/category/fitness" className="block px-4 py-2 hover:bg-blue-100">
+                  #Fitness
+                </Link>
+                <Link to="/category/nutrition" className="block px-4 py-2 hover:bg-blue-100">
+                  #Nutrition
+                </Link>
+                <Link to="/category/wellness" className="block px-4 py-2 hover:bg-blue-100">
+                  #Wellness
+                </Link>
+                <Link to="/category/yoga" className="block px-4 py-2 hover:bg-blue-100">
+                  #Yoga
+                </Link>
+                <Link to="/category/running" className="block px-4 py-2 hover:bg-blue-100">
+                  #Running
+                </Link>
+              </div>
+            </div>
+          </div>
+
           {user?.sub ? (
             <>
               <Link to="/create" className="hover:underline">
