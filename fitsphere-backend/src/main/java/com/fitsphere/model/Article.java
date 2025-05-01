@@ -23,7 +23,7 @@ public class Article {
     private String description;
 
     @Column(nullable = false)
-    private String category;
+    private String tag;
 
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)

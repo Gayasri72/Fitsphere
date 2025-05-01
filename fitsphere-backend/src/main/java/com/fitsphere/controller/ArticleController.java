@@ -20,9 +20,9 @@ public class ArticleController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<Article>> getArticlesByCategory(@PathVariable String category) {
-        List<Article> articles = articleRepository.findByCategory(category);
+    @GetMapping("/tag/{tag}")
+    public ResponseEntity<List<Article>> getArticlesByTag(@PathVariable String tag) {
+        List<Article> articles = articleRepository.findByTag(tag);
         return ResponseEntity.ok(articles);
     }
 
