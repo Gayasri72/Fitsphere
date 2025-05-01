@@ -29,6 +29,9 @@ const Navbar = () => {
               <Link to="/create" className="hover:underline">
                 Create Post
               </Link>
+              <Link to="/achievements" className="hover:underline">
+                Achievements
+              </Link>
               <Link to={`/profile/${user.sub}`} className="hover:underline">
                 My Profile
               </Link>
