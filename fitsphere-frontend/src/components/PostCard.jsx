@@ -13,11 +13,11 @@ const PostCard = ({ post }) => {
   // Initialize like state from post data
   useEffect(() => {
     if (user && post.likedBy) {
-      const userLiked = post.likedBy.includes(user.id);
+      const userLiked = post.likedBy.some(likedUser => likedUser.id === user.id);
       setIsLiked(userLiked);
-      setLikeCount(post.likeCount || 0);
+      setLikeCount(post.likedBy.length);
     }
-  }, [user, post.likedBy, post.likeCount]);
+  }, [user, post.likedBy]);
 
   const handleLike = async () => {
     if (!user) {
@@ -28,9 +28,9 @@ const PostCard = ({ post }) => {
     try {
       const response = await api.put(`/posts/${post.id}/like`);
       const updatedPost = response.data;
-      const userLiked = updatedPost.likedBy.includes(user.id);
+      const userLiked = updatedPost.likedBy.some(likedUser => likedUser.id === user.id);
       setIsLiked(userLiked);
-      setLikeCount(updatedPost.likeCount);
+      setLikeCount(updatedPost.likedBy.length);
     } catch (error) {
       console.error("Error updating like status:", error);
       alert("Failed to update like status");
