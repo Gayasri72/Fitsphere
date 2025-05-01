@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
-import { FaTrash, FaEdit } from "react-icons/fa";
+import { FaTrash, FaEdit, FaUserCircle } from "react-icons/fa";
+import { formatDistanceToNow } from 'date-fns';
 import api from "../api/axios";
 
 const CommentSection = ({ postId }) => {
@@ -11,10 +12,31 @@ const CommentSection = ({ postId }) => {
   const [editingComment, setEditingComment] = useState(null);
   const [editContent, setEditContent] = useState("");
   const { user } = useAuth();
+  const textareaRef = useRef(null);
+  const editTextareaRef = useRef(null);
 
   useEffect(() => {
     fetchComments();
   }, [postId]);
+
+  const adjustTextareaHeight = (textarea) => {
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 80)}px`;
+    }
+  };
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      adjustTextareaHeight(textareaRef.current);
+    }
+  }, [newComment]);
+
+  useEffect(() => {
+    if (editTextareaRef.current) {
+      adjustTextareaHeight(editTextareaRef.current);
+    }
+  }, [editContent]);
 
   const fetchComments = async () => {
     try {
@@ -103,90 +125,126 @@ const CommentSection = ({ postId }) => {
 
   return (
     <div className="mt-4 space-y-4">
-      <form onSubmit={handleSubmit} className="space-y-2">
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Write a comment..."
-          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          rows="3"
-        />
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50"
-        >
-          {isSubmitting ? "Posting..." : "Post Comment"}
-        </button>
-      </form>
+      <div className="flex items-start space-x-3">
+        <div className="flex-shrink-0">
+          {user?.profileImageUrl ? (
+            <img
+              src={user.profileImageUrl}
+              alt="Profile"
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            <FaUserCircle className="w-8 h-8 text-gray-400" />
+          )}
+        </div>
+        <form onSubmit={handleSubmit} className="flex-1">
+          <textarea
+            ref={textareaRef}
+            value={newComment}
+            onChange={(e) => {
+              setNewComment(e.target.value);
+              adjustTextareaHeight(e.target);
+            }}
+            placeholder="Write a comment..."
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[40px] max-h-[80px] overflow-hidden"
+            rows="1"
+          />
+          <div className="flex justify-end mt-2">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-4 py-1.5 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:opacity-50"
+            >
+              {isSubmitting ? "Posting..." : "Post"}
+            </button>
+          </div>
+        </form>
+      </div>
 
       {error && (
-        <div className="p-2 text-red-500 bg-red-50 rounded-md">{error}</div>
+        <div className="p-2 text-sm text-red-500 bg-red-50 rounded-lg">{error}</div>
       )}
 
       <div className="space-y-4">
         {Array.isArray(comments) && comments.length > 0 ? (
           comments.map((comment) => (
-            <div key={comment.id} className="p-4 bg-white rounded-lg shadow">
-              {editingComment?.id === comment.id ? (
-                <form onSubmit={handleUpdate} className="space-y-2">
-                  <textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows="3"
+            <div key={comment.id} className="flex space-x-3">
+              <div className="flex-shrink-0">
+                {comment.user?.profileImageUrl ? (
+                  <img
+                    src={comment.user.profileImageUrl}
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full object-cover"
                   />
-                  <div className="flex space-x-2">
-                    <button
-                      type="submit"
-                      className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
-                    >
-                      Update
-                    </button>
-                    <button
-                      type="button"
-                      onClick={cancelEdit}
-                      className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <>
+                ) : (
+                  <FaUserCircle className="w-8 h-8 text-gray-400" />
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="bg-gray-50 rounded-lg p-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-semibold text-gray-800">
+                      <p className="font-medium text-gray-900">
                         {comment.user?.firstName} {comment.user?.lastName}
                       </p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(comment.createdAt).toLocaleString()}
+                      <p className="text-xs text-gray-500">
+                        {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
                       </p>
                     </div>
                     {user && (user.id === comment.user?.id || user.id === comment.post?.user?.id) && (
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleEdit(comment)}
-                          className="text-blue-500 hover:text-blue-700"
+                          className="text-gray-500 hover:text-blue-500"
                         >
-                          <FaEdit />
+                          <FaEdit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(comment.id)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-gray-500 hover:text-red-500"
                         >
-                          <FaTrash />
+                          <FaTrash className="w-4 h-4" />
                         </button>
                       </div>
                     )}
                   </div>
-                  <p className="mt-2 text-gray-700">{comment.content}</p>
-                </>
-              )}
+                  {editingComment?.id === comment.id ? (
+                    <form onSubmit={handleUpdate} className="mt-2">
+                      <textarea
+                        ref={editTextareaRef}
+                        value={editContent}
+                        onChange={(e) => {
+                          setEditContent(e.target.value);
+                          adjustTextareaHeight(e.target);
+                        }}
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[40px] max-h-[80px] overflow-hidden"
+                        rows="1"
+                      />
+                      <div className="flex justify-end space-x-2 mt-2">
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          className="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="px-3 py-1 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                        >
+                          Update
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <p className="mt-1 text-gray-700">{comment.content}</p>
+                  )}
+                </div>
+              </div>
             </div>
           ))
         ) : (
-          <p className="text-gray-500 text-center">No comments yet</p>
+          <p className="text-center text-gray-500">No comments yet</p>
         )}
       </div>
     </div>
