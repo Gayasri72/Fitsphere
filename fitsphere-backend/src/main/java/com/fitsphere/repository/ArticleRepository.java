@@ -9,5 +9,8 @@ import java.util.List;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findByTag(String tag);
-    List<Article> findByAuthorId(Long authorId);
-} 
+
+    List<Article> findByAuthorEmail(String email);
+
+    List<Article> findAllByOrderByCreatedAtDesc();
+}

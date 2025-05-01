@@ -9,11 +9,14 @@ import OAuthCallback from "./pages/OAuthCallback";
 import CategoryPage from "./pages/CategoryPage";
 import CreateArticle from "./pages/CreateArticle";
 import TagPage from "./pages/TagPage";
+import EditArticle from "./pages/EditArticle";
+import ArticleList from "./components/ArticleList";
 
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 
+console.log('App component rendered');
 
 function App() {
   return (
@@ -30,7 +33,9 @@ function App() {
             <Route path="/edit/:postId" element={<CreatePost />} />
             <Route path="/oauth-callback" element={<OAuthCallback />} />
             <Route path="/category/:category" element={<CategoryPage />} />
+<Route path="/articles" element={<ArticleList />} />
             <Route path="/create-article" element={<CreateArticle />} />
+            <Route path="/edit-article/:id" element={<EditArticle />} />
             <Route path="/tag/:tag" element={<TagPage />} />
           </Routes>
         </div>

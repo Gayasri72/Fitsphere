@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
-const CreateArticle = () => {
+const EditArticle = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         title: '',
@@ -11,6 +12,24 @@ const CreateArticle = () => {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchArticle = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get(`http://localhost:8081/api/articles/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                setFormData(response.data);
+            } catch (err) {
+                setError('Failed to fetch article');
+            }
+        };
+
+        fetchArticle();
+    }, [id]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -31,8 +50,8 @@ const CreateArticle = () => {
                 throw new Error('Not authenticated');
             }
 
-            const response = await axios.post(
-                'http://localhost:8081/api/articles',
+            await axios.put(
+                `http://localhost:8081/api/articles/${id}`,
                 formData,
                 {
                     headers: {
@@ -45,11 +64,11 @@ const CreateArticle = () => {
             navigate(`/tag/${formData.tag}`);
         } catch (err) {
             if (err.response?.status === 401) {
-                setError('Please log in to create an article');
+                setError('Please log in to edit the article');
             } else if (err.response?.status === 403) {
-                setError('You are not authorized to create an article');
+                setError('You are not authorized to edit this article');
             } else {
-                setError(err.response?.data || 'An error occurred while creating the article');
+                setError(err.response?.data || 'An error occurred while updating the article');
             }
         } finally {
             setLoading(false);
@@ -58,7 +77,7 @@ const CreateArticle = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-6">Create Article</h1>
+            <h1 className="text-3xl font-bold mb-6">Edit Article</h1>
             
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -119,11 +138,11 @@ const CreateArticle = () => {
                     disabled={loading}
                     className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
                 >
-                    {loading ? 'Creating...' : 'Create Article'}
+                    {loading ? 'Updating...' : 'Update Article'}
                 </button>
             </form>
         </div>
     );
 };
 
-export default CreateArticle; 
+export default EditArticle; 

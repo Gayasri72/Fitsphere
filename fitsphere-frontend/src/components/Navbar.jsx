@@ -24,6 +24,10 @@ const Navbar = () => {
             Home
           </Link>
 
+          <Link to="/articles" className="hover:underline">
+            Articles
+          </Link>
+
           {/* Tags Dropdown */}
           <div className="relative group">
             <button className="hover:underline flex items-center">
@@ -32,7 +36,7 @@ const Navbar = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div className="absolute left-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+            <div className="absolute left-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <div className="py-1">
                 <Link to="/tag/fitness" className="block px-4 py-2 hover:bg-blue-100">
                   #Fitness
@@ -53,27 +57,15 @@ const Navbar = () => {
             </div>
           </div>
 
-          {user?.sub ? (
-            <>
-              <Link to="/create-article" className="hover:underline">
-                Create Article
-              </Link>
+          {user?.sub && (
+            <div className="flex items-center space-x-4">
               <Link to={`/profile/${user.sub}`} className="hover:underline">
                 My Profile
               </Link>
               <button onClick={handleLogout} className="hover:underline">
                 Logout
               </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="hover:underline">
-                Login
-              </Link>
-              <Link to="/register" className="hover:underline">
-                Register
-              </Link>
-            </>
+            </div>
           )}
         </div>
       </div>
