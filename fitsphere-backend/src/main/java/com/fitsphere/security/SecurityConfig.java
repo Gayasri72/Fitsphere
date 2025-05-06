@@ -56,6 +56,9 @@ public class SecurityConfig {
                 .requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**", "/oauth2/callback/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts/*/comments").permitAll()
+                .requestMatchers("/images/**", "/videos/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
                 .anyRequest().authenticated()
             )
             .cors(cors -> cors.configurationSource(request -> {

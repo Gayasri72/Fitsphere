@@ -19,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fitsphere.service.JwtService;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
@@ -35,11 +36,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         String path = request.getServletPath();
+        logger.info("Processing request for path: {}", path);
 
         // ✅ Skip filtering for public authentication endpoints
         if (path.startsWith("/api/public/") || path.startsWith("/api/auth/") ||
             path.startsWith("/oauth2/authorize/") || path.startsWith("/oauth2/callback/") ||
-            path.equals("/favicon.ico")) {
+            path.equals("/favicon.ico") || path.startsWith("/images/") || path.startsWith("/videos/")) {
+            logger.info("Skipping authentication for public path: {}", path);
             filterChain.doFilter(request, response);
             return;
         }
@@ -49,9 +52,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String userEmail;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            // Only log a warning for protected endpoints
             logger.warn("Missing or invalid Authorization header for path: {}", path);
-            logger.warn("Headers: {}", request.getHeaderNames());
+            logger.warn("Headers: {}", Collections.list(request.getHeaderNames()));
             filterChain.doFilter(request, response);
             return;
         }
@@ -60,25 +62,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             userEmail = jwtService.extractUsername(jwt);
             logger.info("Extracted userEmail from token: {}", userEmail);
-        } catch (Exception e) {
-            logger.error("Failed to extract username from token: {} | Path: {} | Token: {}", e.getMessage(), path, jwt);
-            filterChain.doFilter(request, response);
-            return;
-        }
 
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-                logger.info("Successfully authenticated user: {} for path: {}", userEmail, path);
-            } else {
-                logger.warn("Invalid token for user: {} | Path: {} | Token: {}", userEmail, path, jwt);
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    logger.info("Successfully authenticated user: {} for path: {}", userEmail, path);
+                } else {
+                    logger.warn("Invalid token for user: {}", userEmail);
+                }
             }
+        } catch (Exception e) {
+            logger.error("Failed to process JWT token: {} | Path: {}", e.getMessage(), path);
         }
-
+        
         filterChain.doFilter(request, response);
     }
 }
