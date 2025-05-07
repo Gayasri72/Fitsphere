@@ -63,5 +63,9 @@ public class PostController {
         return deleted ? ResponseEntity.ok().build() : ResponseEntity.status(403).build();
     }
 
-   
+    @PostMapping("/posts/{postId}/share")
+    public ResponseEntity<Post> sharePost(@PathVariable Long postId, Authentication authentication) {
+        Post sharedPost = postService.sharePost(postId, authentication);
+        return ResponseEntity.ok(sharedPost);
+    }
 }

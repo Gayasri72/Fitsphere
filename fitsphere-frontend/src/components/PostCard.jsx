@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import { FaRegHeart, FaHeart, FaRegComment, FaRegShareSquare } from "react-icons/fa";
 import CommentSection from "./CommentSection";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
 const PostCard = ({ post }) => {
   const [showComments, setShowComments] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likeCount || 0);
+  const [isSharing, setIsSharing] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Initialize like state from post data
   useEffect(() => {
@@ -22,6 +25,7 @@ const PostCard = ({ post }) => {
   const handleLike = async () => {
     if (!user) {
       alert("Please login to like posts");
+      navigate('/login');
       return;
     }
 
@@ -34,6 +38,30 @@ const PostCard = ({ post }) => {
     } catch (error) {
       console.error("Error updating like status:", error);
       alert("Failed to update like status");
+    }
+  };
+
+  const handleShare = async () => {
+    if (!user) {
+      alert("Please login to share posts");
+      navigate('/login');
+      return;
+    }
+
+    setIsSharing(true);
+    try {
+      await api.post(`/posts/${post.id}/share`);
+      alert("Post shared successfully!");
+    } catch (error) {
+      console.error("Error sharing post:", error);
+      if (error.response?.status === 403) {
+        alert("You need to be logged in to share posts");
+        navigate('/login');
+      } else {
+        alert("Failed to share post");
+      }
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -115,15 +143,26 @@ const PostCard = ({ post }) => {
             <span>{likeCount} {likeCount === 1 ? 'Like' : 'Likes'}</span>
           </button>
           <button 
-            onClick={() => setShowComments(!showComments)}
+            onClick={() => {
+              if (!user) {
+                alert("Please login to comment on posts");
+                navigate('/login');
+                return;
+              }
+              setShowComments(!showComments);
+            }}
             className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors"
           >
             <FaRegComment />
             <span>Comment</span>
           </button>
-          <button className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-colors">
+          <button 
+            onClick={handleShare}
+            disabled={isSharing}
+            className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-colors disabled:opacity-50"
+          >
             <FaRegShareSquare />
-            <span>Share</span>
+            <span>{isSharing ? 'Sharing...' : 'Share'}</span>
           </button>
         </div>
         {showComments && (

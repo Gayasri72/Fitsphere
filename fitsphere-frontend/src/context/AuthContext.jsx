@@ -12,12 +12,14 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         let decoded = jwtDecode(token);
-        // Ensure sub is set for compatibility with UI
-        if (!decoded.sub && decoded.id) decoded.sub = decoded.id;
-        console.log("Decoded token payload:", decoded); // Debugging log
-        if (!decoded.id) {
-          console.warn("Decoded token does not contain an ID field.");
+        // Ensure consistent ID field for both regular and OAuth logins
+        if (!decoded.sub && decoded.id) {
+          decoded.sub = decoded.id;
         }
+        if (!decoded.id && decoded.sub) {
+          decoded.id = decoded.sub;
+        }
+        console.log("Decoded token payload:", decoded);
         setUser(decoded);
       } catch (err) {
         console.error("Invalid token", err);
@@ -25,7 +27,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     } else {
-      console.log("No token found, setting user to null"); // Debugging log
+      console.log("No token found, setting user to null");
       setUser(null);
     }
   }, []);
@@ -34,18 +36,23 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", token);
     try {
       let decoded = jwtDecode(token);
-      // Ensure sub is set for compatibility with UI
-      if (!decoded.sub && decoded.id) decoded.sub = decoded.id;
-      console.log("User logged in:", decoded); // Debugging log
+      // Ensure consistent ID field for both regular and OAuth logins
+      if (!decoded.sub && decoded.id) {
+        decoded.sub = decoded.id;
+      }
+      if (!decoded.id && decoded.sub) {
+        decoded.id = decoded.sub;
+      }
+      console.log("User logged in:", decoded);
       setUser(decoded);
-    } catch {
-      console.error("Failed to decode token during login"); // Debugging log
+    } catch (err) {
+      console.error("Failed to decode token during login:", err);
       setUser(null);
     }
   };
 
   const logout = () => {
-    console.log("User logged out"); // Debugging log
+    console.log("User logged out");
     localStorage.removeItem("token");
     setUser(null);
   };

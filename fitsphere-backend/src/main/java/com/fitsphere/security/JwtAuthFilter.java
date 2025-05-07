@@ -19,6 +19,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fitsphere.service.JwtService;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -35,23 +37,33 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         String path = request.getServletPath();
+        logger.info("Processing request for path: {}", path);
 
-        // ✅ Skip filtering for public authentication endpoints
+        // Skip filtering for public authentication endpoints
         if (path.startsWith("/api/public/") || path.startsWith("/api/auth/") ||
             path.startsWith("/oauth2/authorize/") || path.startsWith("/oauth2/callback/") ||
             path.equals("/favicon.ico")) {
+            logger.debug("Skipping authentication for public path: {}", path);
             filterChain.doFilter(request, response);
             return;
         }
 
         final String authHeader = request.getHeader("Authorization");
+        logger.debug("Auth header: {}", authHeader);
+
+        // Log all headers for debugging
+        Collections.list(request.getHeaderNames()).forEach(headerName -> 
+            logger.debug("Header {}: {}", headerName, request.getHeader(headerName))
+        );
+
         final String jwt;
         final String userEmail;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            // Only log a warning for protected endpoints
             logger.warn("Missing or invalid Authorization header for path: {}", path);
-            logger.warn("Headers: {}", request.getHeaderNames());
+            logger.warn("Headers present: {}", Collections.list(request.getHeaderNames())
+                .stream()
+                .collect(Collectors.joining(", ")));
             filterChain.doFilter(request, response);
             return;
         }
@@ -59,9 +71,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         try {
             userEmail = jwtService.extractUsername(jwt);
-            logger.info("Extracted userEmail from token: {}", userEmail);
+            logger.info("Successfully extracted email from token: {}", userEmail);
         } catch (Exception e) {
-            logger.error("Failed to extract username from token: {} | Path: {} | Token: {}", e.getMessage(), path, jwt);
+            logger.error("Failed to extract username from token: {} | Path: {} | Error: {}", jwt, path, e.getMessage());
             filterChain.doFilter(request, response);
             return;
         }
@@ -75,7 +87,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
                 logger.info("Successfully authenticated user: {} for path: {}", userEmail, path);
             } else {
-                logger.warn("Invalid token for user: {} | Path: {} | Token: {}", userEmail, path, jwt);
+                logger.warn("Token validation failed for user: {} | Path: {}", userEmail, path);
             }
         }
 
