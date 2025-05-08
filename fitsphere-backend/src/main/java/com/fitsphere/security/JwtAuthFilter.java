@@ -38,10 +38,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         logger.info("Processing request for path: {}", path);
 
-        // ✅ Skip filtering for public authentication endpoints
+        // ✅ Skip filtering for public authentication endpoints and GET articles
         if (path.startsWith("/api/public/") || path.startsWith("/api/auth/") ||
             path.startsWith("/oauth2/authorize/") || path.startsWith("/oauth2/callback/") ||
-            path.equals("/favicon.ico") || path.startsWith("/images/") || path.startsWith("/videos/")) {
+            path.equals("/favicon.ico") || path.startsWith("/images/") || path.startsWith("/videos/") ||
+            (path.startsWith("/api/articles") && request.getMethod().equals("GET"))) {
             logger.info("Skipping authentication for public path: {}", path);
             filterChain.doFilter(request, response);
             return;

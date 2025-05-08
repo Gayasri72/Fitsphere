@@ -17,11 +17,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fitsphere.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -58,17 +61,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/posts/*/comments").permitAll()
                 .requestMatchers("/images/**", "/videos/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/articles/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
                 .anyRequest().authenticated()
             )
-            .cors(cors -> cors.configurationSource(request -> {
-                CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174"));
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-                config.setAllowCredentials(true);
-                return config;
-            }))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(eh -> eh.authenticationEntryPoint(customAuthenticationEntryPoint()))
@@ -107,5 +105,18 @@ public class SecurityConfig {
                         .addResourceLocations("file:uploads/videos/");
             }
         };
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

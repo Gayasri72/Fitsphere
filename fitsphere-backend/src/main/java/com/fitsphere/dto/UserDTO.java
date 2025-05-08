@@ -1,13 +1,9 @@
 package com.fitsphere.dto;
 
 import com.fitsphere.model.User;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserDTO {
     private Long id;
     private String firstName;
@@ -20,7 +16,9 @@ public class UserDTO {
         this.lastName = lastName;
         this.email = email;
     }
-    public UserDTO() {}
+
+    public UserDTO() {
+    }
 
     public static UserDTO fromUser(User user) {
         UserDTO dto = new UserDTO();
