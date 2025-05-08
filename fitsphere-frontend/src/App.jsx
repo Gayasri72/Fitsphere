@@ -1,10 +1,11 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
+import CreateArticle from "./components/CreateArticle";
+import Articles from "./components/Articles";
 import Navbar from "./components/Navbar";
 import OAuthCallback from "./pages/OAuthCallback";
 
@@ -24,6 +25,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/create" element={<CreatePost />} />
+          <Route path="/create-article" element={<CreateArticle />} />
+          <Route path="/articles" element={<Articles />} />
           <Route path="/edit/:postId" element={<CreatePost />} />
           <Route path="/oauth-callback" element={<OAuthCallback />} />
         </Routes>
