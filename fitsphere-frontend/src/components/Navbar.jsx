@@ -23,11 +23,17 @@ const Navbar = () => {
           <Link to="/" className="hover:underline">
             Home
           </Link>
+          <Link to="/articles" className="hover:underline">
+            Articles
+          </Link>
 
           {user?.sub ? (
             <>
               <Link to="/create" className="hover:underline">
                 Create Post
+              </Link>
+              <Link to="/create-article" className="hover:underline">
+                Create Articles
               </Link>
               <Link to={`/profile/${user.sub}`} className="hover:underline">
                 My Profile
