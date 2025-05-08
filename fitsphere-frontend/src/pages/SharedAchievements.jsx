@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
-import { FaMedal, FaEdit, FaTrash, FaShare } from 'react-icons/fa';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { FaMedal, FaEdit, FaTrash } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
 
 const SharedAchievements = () => {
   const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [editReflection, setEditReflection] = useState('');
   const { user } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     fetchAchievements();
-  }, [location.pathname]); // Refresh when navigating to this page
+  }, [location.pathname]);
 
   const fetchAchievements = async () => {
     try {
@@ -37,36 +37,27 @@ const SharedAchievements = () => {
     setEditReflection(achievement.userReflection || '');
   };
 
-  const handleShare = async (achievement) => {
-    if (!user) {
-      alert('Please login to share achievements');
-      navigate('/login');
+  const handleUpdateReflection = async (achievementId) => {
+    if (!editReflection.trim()) {
+      alert('Please enter a reflection before saving.');
       return;
     }
 
     try {
-      // Create a post about the achievement
-      const formData = new FormData();
-      const description = `🏆 Achievement Unlocked: ${achievement.title}\n\n${achievement.description}${achievement.userReflection ? `\n\nReflection: ${achievement.userReflection}` : ''}`;
-      formData.append('description', description);
-
-      await api.post('/posts', formData);
-      alert('Achievement shared successfully!');
-      fetchAchievements(); // Refresh the achievements list
-    } catch (error) {
-      console.error('Error sharing achievement:', error);
-      alert('Failed to share achievement');
-    }
-  };
-
-  const handleUpdateReflection = async (achievementId) => {
-    try {
       await api.put(`/achievements/${achievementId}`, {
-        userReflection: editReflection
+        userReflection: editReflection.trim()
       });
-      await fetchAchievements(); // Refresh the achievements list
+      
+      // Update the local state immediately for better UX
+      setAchievements(achievements.map(achievement => 
+        achievement.id === achievementId 
+          ? { ...achievement, userReflection: editReflection.trim() }
+          : achievement
+      ));
+      
       setEditingId(null);
       setEditReflection('');
+      alert('Reflection updated successfully!');
     } catch (error) {
       console.error('Error updating reflection:', error);
       alert('Failed to update reflection');
@@ -74,12 +65,15 @@ const SharedAchievements = () => {
   };
 
   const handleDeleteAchievement = async (achievementId) => {
-    if (!window.confirm('Are you sure you want to delete this achievement?')) {
+    if (!window.confirm('Are you sure you want to delete this achievement? This action cannot be undone.')) {
       return;
     }
+
     try {
       await api.delete(`/achievements/${achievementId}`);
-      await fetchAchievements(); // Refresh the achievements list
+      // Update local state immediately
+      setAchievements(achievements.filter(a => a.id !== achievementId));
+      alert('Achievement deleted successfully');
     } catch (error) {
       console.error('Error deleting achievement:', error);
       alert('Failed to delete achievement');
@@ -103,6 +97,20 @@ const SharedAchievements = () => {
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
         >
           Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-green-500 mb-4">{success}</div>
+        <button
+          onClick={() => setSuccess(null)}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+        >
+          OK
         </button>
       </div>
     );
@@ -199,13 +207,6 @@ const SharedAchievements = () => {
                       </button>
                     </>
                   )}
-                  <button
-                    onClick={() => handleShare(achievement)}
-                    className="text-green-500 hover:text-green-700 transition"
-                    title="Share achievement"
-                  >
-                    <FaShare />
-                  </button>
                 </div>
               </div>
             </div>

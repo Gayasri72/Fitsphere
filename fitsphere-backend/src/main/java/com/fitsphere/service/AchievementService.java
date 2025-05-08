@@ -9,11 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,8 +41,7 @@ public class AchievementService {
             String exerciseType,
             Integer daysCompleted,
             String userReflection,
-            MultipartFile image,
-            Authentication authentication) throws IOException {
+            Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -62,16 +57,6 @@ public class AchievementService {
                 .createdAt(LocalDateTime.now())
                 .user(user)
                 .build();
-
-        if (image != null && !image.isEmpty()) {
-            String fileName = System.currentTimeMillis() + "_" + StringUtils.cleanPath(image.getOriginalFilename());
-            File uploadDir = new File("uploads/images");
-            if (!uploadDir.exists()) uploadDir.mkdirs();
-
-            File dest = new File(uploadDir, fileName);
-            image.transferTo(dest);
-            achievement.setImageUrl("/images/" + fileName);
-        }
 
         achievement = achievementRepository.save(achievement);
         return AchievementDTO.fromAchievement(achievement);

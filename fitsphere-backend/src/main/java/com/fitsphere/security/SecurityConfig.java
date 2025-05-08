@@ -11,14 +11,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.fitsphere.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Configuration
@@ -40,8 +43,8 @@ public class SecurityConfig {
     public AuthenticationEntryPoint customAuthenticationEntryPoint() {
         return (request, response, authException) -> {
             response.setContentType("application/json");
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("{\"error\":\"Forbidden: " + authException.getMessage() + "\"}");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\":\"Unauthorized: " + authException.getMessage() + "\"}");
         };
     }
 
@@ -49,11 +52,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/public/login", "/api/public/register").permitAll()
+                .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**", "/oauth2/callback/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/workout-templates/shared").permitAll()
-                .requestMatchers("/api/achievements/**").authenticated()
+                .requestMatchers("/api/achievements/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/achievements").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/achievements/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/achievements/**").authenticated()
                 .requestMatchers("/api/workout-templates/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/workout-templates/*/like").authenticated()
                 .requestMatchers("/api/workout-templates/*/comments/**").authenticated()

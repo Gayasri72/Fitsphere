@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import AchievementModal from '../components/AchievementModal';
 
 const Workout = () => {
   const { user } = useAuth();
@@ -9,7 +9,7 @@ const Workout = () => {
   const [exerciseType, setExerciseType] = useState('🏋️ Completed a Workout Session');
   const [daysCompleted, setDaysCompleted] = useState(0);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [showAchievementModal, setShowAchievementModal] = useState(false);
 
   // Exercise types and their target days
   const exercises = [
@@ -34,7 +34,7 @@ const Workout = () => {
 
   const handleProgressUpdate = async (day) => {
     if (!user) {
-      navigate('/login');
+      setError("You need to be logged in to update progress");
       return;
     }
 
@@ -56,30 +56,23 @@ const Workout = () => {
       localStorage.setItem(`workout_${exerciseType}_${user?.id}`, newProgress.toString());
       localStorage.setItem(`days_${exerciseType}_${user?.id}`, newDaysCompleted.toString());
 
-      // If user completed 30 days, create a post
+      // If user completed 30 days, show achievement modal
       if (newDaysCompleted === 30) {
-        try {
-          const formData = new FormData();
-          const description = `🎉 Achievement Unlocked: Completed 30 days of ${exerciseType} exercises!\n\nI've successfully completed my 30-day ${exerciseType} challenge. This journey has been incredible for my fitness goals! 💪\n\n#FitnessJourney #${exerciseType}Challenge #30DaysStrong`;
-          formData.append('description', description);
-
-          // The axios instance will automatically add the Authorization header
-          await api.post('/posts', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-        } catch (error) {
-          console.error('Error creating post:', error);
-          if (error.response?.status === 401 || error.response?.status === 403) {
-            // If authentication error, redirect to login
-            navigate('/login');
-          }
-        }
+        setShowAchievementModal(true);
       }
     } catch (error) {
       console.error('Error updating progress:', error);
-      setError('Failed to update progress');
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        setError("There was an issue with your session. Please try again.");
+        // Refresh the token or handle auth error without redirecting
+        try {
+          await api.get('/users/refresh-token');
+        } catch {
+          setError("Failed to refresh session. Please try updating again.");
+        }
+      } else {
+        setError('Failed to update progress. Please try again.');
+      }
     }
   };
 
@@ -107,6 +100,12 @@ const Workout = () => {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="text-4xl font-bold text-gray-800 mb-12 text-center">My Progress</h1>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg text-center">
+            {error}
+          </div>
+        )}
 
         {/* Exercise Type Selection */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
@@ -164,8 +163,16 @@ const Workout = () => {
           </div>
         </div>
       </div>
+      {showAchievementModal && (
+        <AchievementModal
+          isOpen={showAchievementModal}
+          onClose={() => setShowAchievementModal(false)}
+          exerciseType={exerciseType}
+          daysCompleted={30}
+        />
+      )}
     </div>
   );
 };
 
-export default Workout; 
+export default Workout;
