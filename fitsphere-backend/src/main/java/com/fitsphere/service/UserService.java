@@ -16,6 +16,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private static final String BACKEND_URL = "http://localhost:8081";
 
     public User updateUser(Long userId, String firstName, String lastName, String email, MultipartFile profileImage, Authentication authentication) throws IOException {
         User user = userRepository.findById(userId).orElseThrow();
@@ -33,11 +34,17 @@ public class UserService {
         }
         if (profileImage != null && !profileImage.isEmpty()) {
             String fileName = System.currentTimeMillis() + "_" + StringUtils.cleanPath(profileImage.getOriginalFilename());
-            File uploadDir = new File("uploads/images");
-            if (!uploadDir.exists()) uploadDir.mkdirs();
+            File uploadDir = new File(System.getProperty("user.dir"), "uploads/images");
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
             File dest = new File(uploadDir, fileName);
-            profileImage.transferTo(dest);
-            user.setProfileImageUrl("/images/" + fileName);
+            try {
+                profileImage.transferTo(dest);
+                user.setProfileImageUrl(BACKEND_URL + "/images/" + fileName);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save profile image", e);
+            }
         }
         return userRepository.save(user);
     }

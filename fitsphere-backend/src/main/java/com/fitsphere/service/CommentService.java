@@ -8,4 +8,5 @@ public interface CommentService {
     CommentDTO createComment(Long postId, String content, Authentication authentication);
     List<CommentDTO> getCommentsByPostId(Long postId);
     void deleteComment(Long commentId, Authentication authentication);
+    CommentDTO updateComment(Long commentId, String content, Authentication authentication);
 } 

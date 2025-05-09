@@ -33,6 +33,18 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
+    @PutMapping("/posts/{postId}/comments/{commentId}")
+    public ResponseEntity<CommentDTO> updateComment(
+            @PathVariable Long postId,
+            @PathVariable Long commentId,
+            @RequestBody String content,
+            Authentication authentication) {
+        // Remove quotes if present
+        content = content.replaceAll("^\"|\"$", "");
+        CommentDTO comment = commentService.updateComment(commentId, content, authentication);
+        return ResponseEntity.ok(comment);
+    }
+
     @DeleteMapping("/posts/{postId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long postId,

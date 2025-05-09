@@ -36,9 +36,20 @@ public class Post {
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnoreProperties({"password", "email"})
+    @Builder.Default
     private Set<User> likedBy = new HashSet<>();
 
     public int getLikeCount() {
-        return likedBy.size();
+        return likedBy != null ? likedBy.size() : 0;
+    }
+
+    // Custom builder to ensure likedBy is initialized
+    public static class PostBuilder {
+        private Set<User> likedBy = new HashSet<>();
+        
+        public PostBuilder likedBy(Set<User> likedBy) {
+            this.likedBy = likedBy != null ? likedBy : new HashSet<>();
+            return this;
+        }
     }
 }

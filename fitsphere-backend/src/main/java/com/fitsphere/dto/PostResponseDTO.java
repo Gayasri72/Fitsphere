@@ -31,4 +31,4 @@ public class PostResponseDTO {
         dto.setLikeCount(post.getLikedBy().size());
         return dto;
     }
-} 
+}
