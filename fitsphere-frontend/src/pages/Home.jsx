@@ -10,9 +10,15 @@ const Home = () => {
   const [achievements, setAchievements] = useState([]);
 
   useEffect(() => {
-    axios.get("/users").then((res) => setSuggestedUsers(res.data)).catch(() => setSuggestedUsers([]));
+    axios
+      .get("/users")
+      .then((res) => setSuggestedUsers(res.data))
+      .catch(() => setSuggestedUsers([]));
     // Fetch achievements
-    axios.get("/achievements").then((res) => setAchievements(res.data.slice(0, 3))).catch(() => setAchievements([]));
+    axios
+      .get("/achievements")
+      .then((res) => setAchievements(res.data.slice(0, 3)))
+      .catch(() => setAchievements([]));
   }, []);
 
   if (!Array.isArray(posts)) {
@@ -25,23 +31,35 @@ const Home = () => {
       <aside className="hidden md:block w-64 bg-white rounded-lg shadow p-4 h-fit sticky top-24 self-start">
         {/* Achievements Section */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold mb-4 text-yellow-600">Recent Achievements</h3>
+          <h3 className="text-lg font-bold mb-4 text-yellow-600">
+            Recent Achievements
+          </h3>
           {achievements.length === 0 ? (
             <p className="text-sm text-gray-500">No achievements yet</p>
           ) : (
             <div className="space-y-4">
               {achievements.map((achievement) => (
-                <div key={achievement.id} className="flex items-start gap-3 bg-yellow-50 p-3 rounded-lg">
+                <div
+                  key={achievement.id}
+                  className="flex items-start gap-3 bg-yellow-50 p-3 rounded-lg"
+                >
                   <FaMedal className="text-yellow-500 text-xl flex-shrink-0 mt-1" />
                   <div>
-                    <p className="text-sm font-medium text-gray-800">{achievement.title}</p>
+                    <p className="text-sm font-medium text-gray-800">
+                      {achievement.title}
+                    </p>
                     {achievement.userReflection && (
-                      <p className="text-xs text-gray-600 mt-1 italic">"{achievement.userReflection}"</p>
+                      <p className="text-xs text-gray-600 mt-1 italic">
+                        "{achievement.userReflection}"
+                      </p>
                     )}
                   </div>
                 </div>
               ))}
-              <a href="/achievements" className="text-sm text-blue-600 hover:underline block text-center">
+              <a
+                href="/achievements"
+                className="text-sm text-blue-600 hover:underline block text-center"
+              >
                 View All Achievements
               </a>
             </div>
@@ -52,9 +70,7 @@ const Home = () => {
       {/* Main Content */}
       <div className="w-full max-w-xl">
         {posts.length === 0 ? (
-          <div className="text-center text-gray-500 mt-10">
-            No posts found.
-          </div>
+          <div className="text-center text-gray-500 mt-10">No posts found.</div>
         ) : (
           posts.map((post) => <PostCard key={post.id} post={post} />)
         )}
@@ -69,9 +85,12 @@ const Home = () => {
           {suggestedUsers.map((u) => (
             <li key={u.id} className="flex items-center gap-3">
               <img
-                src={u.profileImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  (u.firstName || "") + " " + (u.lastName || "")
-                )}&background=4f8cff&color=fff&size=40`}
+                src={
+                  u.profileImageUrl ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    (u.firstName || "") + " " + (u.lastName || "")
+                  )}&background=4f8cff&color=fff&size=40`
+                }
                 alt="Suggested Friend"
                 className="w-10 h-10 rounded-full border-2 border-blue-200"
               />

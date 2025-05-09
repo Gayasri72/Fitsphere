@@ -27,37 +27,56 @@ public class PostService {
     private final UserRepository userRepository;
 
     public Post createPost(String description, MultipartFile image, MultipartFile video, Authentication authentication) {
+        if (authentication == null) {
+            throw new SecurityException("User must be authenticated to create a post");
+        }
+
         String email = authentication.getName();
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         String imageUrl = null;
         String videoUrl = null;
 
         // Save image file if present
         if (image != null && !image.isEmpty()) {
+            if (!image.getContentType().startsWith("image/")) {
+                throw new IllegalArgumentException("File must be an image");
+            }
             String fileName = System.currentTimeMillis() + "_" + StringUtils.cleanPath(image.getOriginalFilename());
             File uploadDir = new File(System.getProperty("user.dir"), "uploads/images");
-            if (!uploadDir.exists()) uploadDir.mkdirs();
+            if (!uploadDir.exists()) {
+                if (!uploadDir.mkdirs()) {
+                    throw new RuntimeException("Failed to create upload directory");
+                }
+            }
             File dest = new File(uploadDir, fileName);
             try {
                 image.transferTo(dest);
                 imageUrl = "/images/" + fileName;
             } catch (IOException e) {
-                throw new RuntimeException("Failed to save image file", e);
+                throw new RuntimeException("Failed to save image file: " + e.getMessage(), e);
             }
         }
 
         // Save video file if present
         if (video != null && !video.isEmpty()) {
+            if (!video.getContentType().startsWith("video/")) {
+                throw new IllegalArgumentException("File must be a video");
+            }
             String fileName = System.currentTimeMillis() + "_" + StringUtils.cleanPath(video.getOriginalFilename());
             File uploadDir = new File(System.getProperty("user.dir"), "uploads/videos");
-            if (!uploadDir.exists()) uploadDir.mkdirs();
+            if (!uploadDir.exists()) {
+                if (!uploadDir.mkdirs()) {
+                    throw new RuntimeException("Failed to create upload directory");
+                }
+            }
             File dest = new File(uploadDir, fileName);
             try {
                 video.transferTo(dest);
                 videoUrl = "/videos/" + fileName;
             } catch (IOException e) {
-                throw new RuntimeException("Failed to save video file", e);
+                throw new RuntimeException("Failed to save video file: " + e.getMessage(), e);
             }
         }
 
@@ -129,5 +148,4 @@ public class PostService {
     }
 }
 
-}
 

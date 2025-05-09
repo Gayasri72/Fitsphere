@@ -24,23 +24,16 @@ public class UserDTO {
     private String profileImageUrl;
 
     public static UserDTO fromUser(User user) {
-
-        if (user == null) return null;
+        if (user == null) {
+            return null;
+        }
+        
         return UserDTO.builder()
                 .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .profileImageUrl(user.getProfileImageUrl())
+                .firstName(user.getFirstName() != null ? user.getFirstName() : "")
+                .lastName(user.getLastName() != null ? user.getLastName() : "")
+                .email(user.getEmail() != null ? user.getEmail() : "")
+                .profileImageUrl(user.getProfileImageUrl() != null ? user.getProfileImageUrl() : "")
                 .build();
-
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setEmail(user.getEmail());
-        dto.setProfileImageUrl(user.getProfileImageUrl());
-        return dto;
-
     }
 }
