@@ -26,11 +26,17 @@ const PostCard = ({ post }) => {
     }
 
     try {
+      console.log('Before like - isLiked:', isLiked);
       const response = await api.put(`/posts/${post.id}/like`);
       const updatedPost = response.data;
-      const userLiked = updatedPost.likedBy.some(likedUser => likedUser.id === user.id);
-      setIsLiked(userLiked);
-      setLikeCount(updatedPost.likedBy.length);
+      console.log('API Response:', updatedPost);
+      
+      // Toggle the like status instead of checking the response
+      const newLikeStatus = !isLiked;
+      setIsLiked(newLikeStatus);
+      setLikeCount(prevCount => newLikeStatus ? prevCount + 1 : prevCount - 1);
+      
+      console.log('After like - isLiked:', newLikeStatus);
     } catch (error) {
       console.error("Error updating like status:", error);
       alert("Failed to update like status");
@@ -108,11 +114,11 @@ const PostCard = ({ post }) => {
             }`}
           >
             {isLiked ? (
-              <FaHeart className="text-pink-500" />
+              <FaHeart className="text-pink-500 text-xl" />
             ) : (
-              <FaRegHeart />
+              <FaRegHeart className="text-xl" />
             )}
-            <span>{likeCount} {likeCount === 1 ? 'Like' : 'Likes'}</span>
+            <span className={isLiked ? 'text-pink-500' : ''}>{likeCount} {likeCount === 1 ? 'Like' : 'Likes'}</span>
           </button>
           <button 
             onClick={() => setShowComments(!showComments)}
