@@ -13,14 +13,7 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private String email;
-
-    public UserDTO(Long id, String firstName, String lastName, String email) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-    }
-    public UserDTO() {}
+    private String profileImageUrl;
 
     public static UserDTO fromUser(User user) {
         UserDTO dto = new UserDTO();
@@ -28,6 +21,7 @@ public class UserDTO {
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
         dto.setEmail(user.getEmail());
+        dto.setProfileImageUrl(user.getProfileImageUrl());
         return dto;
     }
 }
