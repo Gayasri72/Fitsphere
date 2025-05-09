@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -105,4 +106,28 @@ public class PostService {
         postRepository.delete(post);
         return true;
     }
+
+
+    @Transactional
+    public Post sharePost(Long postId, Authentication authentication) {
+        Post originalPost = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Create a new shared post
+        Post sharedPost = Post.builder()
+                .description("Shared achievement: " + originalPost.getDescription())
+                .imageUrl(originalPost.getImageUrl())
+                .videoUrl(originalPost.getVideoUrl())
+                .createdAt(LocalDateTime.now())
+                .user(user)
+                .build();
+
+        return postRepository.save(sharedPost);
+    }
 }
+
+}
+

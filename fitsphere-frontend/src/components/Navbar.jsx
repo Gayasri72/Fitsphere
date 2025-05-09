@@ -26,6 +26,9 @@ const Navbar = () => {
 
           {user?.sub ? (
             <>
+              <Link to="/workout" className="hover:underline">
+                Track Workout
+              </Link>
               <Link to="/create" className="hover:underline">
                 Create Post
               </Link>

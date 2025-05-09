@@ -7,6 +7,9 @@ import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
 import Navbar from "./components/Navbar";
 import OAuthCallback from "./pages/OAuthCallback";
+import WorkoutTemplates from "./pages/WorkoutTemplates";
+import SharedAchievements from "./pages/SharedAchievements";
+import Workout from "./pages/Workout";
 
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
@@ -26,6 +29,9 @@ function App() {
           <Route path="/create" element={<CreatePost />} />
           <Route path="/edit/:postId" element={<CreatePost />} />
           <Route path="/oauth-callback" element={<OAuthCallback />} />
+          <Route path="/workout-templates" element={<WorkoutTemplates />} />
+          <Route path="/workout" element={<Workout />} />
+          <Route path="/achievements" element={<SharedAchievements />} />
         </Routes>
       </div>
     </BrowserRouter>
