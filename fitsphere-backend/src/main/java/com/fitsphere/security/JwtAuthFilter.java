@@ -20,7 +20,9 @@ import com.fitsphere.service.JwtService;
 
 import java.io.IOException;
 import java.util.Collections;
+
 import java.util.stream.Collectors;
+
 
 @Component
 @RequiredArgsConstructor
@@ -42,8 +44,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // Skip filtering for public authentication endpoints
         if (path.startsWith("/api/public/") || path.startsWith("/api/auth/") ||
             path.startsWith("/oauth2/authorize/") || path.startsWith("/oauth2/callback/") ||
-            path.equals("/favicon.ico")) {
-            logger.debug("Skipping authentication for public path: {}", path);
+
+            path.equals("/favicon.ico") || path.startsWith("/images/") || path.startsWith("/videos/")) {
+            logger.info("Skipping authentication for public path: {}", path);
+
             filterChain.doFilter(request, response);
             return;
         }
@@ -61,9 +65,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             logger.warn("Missing or invalid Authorization header for path: {}", path);
+
             logger.warn("Headers present: {}", Collections.list(request.getHeaderNames())
                 .stream()
                 .collect(Collectors.joining(", ")));
+
             filterChain.doFilter(request, response);
             return;
         }
@@ -71,26 +77,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         try {
             userEmail = jwtService.extractUsername(jwt);
-            logger.info("Successfully extracted email from token: {}", userEmail);
-        } catch (Exception e) {
-            logger.error("Failed to extract username from token: {} | Path: {} | Error: {}", jwt, path, e.getMessage());
-            filterChain.doFilter(request, response);
-            return;
-        }
 
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-                logger.info("Successfully authenticated user: {} for path: {}", userEmail, path);
-            } else {
-                logger.warn("Token validation failed for user: {} | Path: {}", userEmail, path);
+            logger.info("Extracted userEmail from token: {}", userEmail);
+
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    logger.info("Successfully authenticated user: {} for path: {}", userEmail, path);
+                } else {
+                    logger.warn("Invalid token for user: {}", userEmail);
+                }
+
             }
+        } catch (Exception e) {
+            logger.error("Failed to process JWT token: {} | Path: {}", e.getMessage(), path);
         }
-
+        
         filterChain.doFilter(request, response);
     }
 }

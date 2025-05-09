@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,6 +67,7 @@ public class PostService {
                 .videoUrl(videoUrl)
                 .createdAt(LocalDateTime.now())
                 .user(user)
+                .likedBy(new HashSet<>())
                 .build();
 
         return postRepository.save(post);
@@ -105,6 +107,7 @@ public class PostService {
         return true;
     }
 
+
     @Transactional
     public Post sharePost(Long postId, Authentication authentication) {
         Post originalPost = postRepository.findById(postId)
@@ -125,3 +128,6 @@ public class PostService {
         return postRepository.save(sharedPost);
     }
 }
+
+}
+

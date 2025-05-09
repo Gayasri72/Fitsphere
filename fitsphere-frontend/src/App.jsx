@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -9,6 +10,11 @@ import OAuthCallback from "./pages/OAuthCallback";
 import WorkoutTemplates from "./pages/WorkoutTemplates";
 import SharedAchievements from "./pages/SharedAchievements";
 import Workout from "./pages/Workout";
+
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+
 
 function App() {
   return (
